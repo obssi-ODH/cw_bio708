@@ -6,7 +6,6 @@ library(tidyverse)
 
 #  CO2 dataset ------------------------------------------------------------
 
-
 ## DATA DESCRIPTION 
 
 # The CO2 dataset in R records how grass plants from two origins, Quebec and
@@ -21,9 +20,7 @@ head(CO2)
 
 ## DATA DESCRIPTION END ###################################################
 
-
 # Q1 ----------------------------------------------------------------------
-
 
 # CO2 dataframe is a base dataframe. Convert this to a class `tibble`
 # then assign to `df_co2`
@@ -32,9 +29,7 @@ library(tibble)
 df_co2 <- as_tibble(CO2)
 class(df_co2)
 
-
 # Q2 ----------------------------------------------------------------------
-
 
 # Convert column names to lowercase and reassign to `df_co2`
 
@@ -69,9 +64,7 @@ ptype2 <- df_co2 %>%
 library(patchwork)
 ptype1/ ptype2
 
-
 # Q4 ----------------------------------------------------------------------
-
 
 # The df_co2 dataset contains the following variables:
 # - CO₂ assimilation rate
@@ -100,9 +93,7 @@ mod_mississippi <- df_co2 %>%
 
 summary(mod_mississippi)
 
-
 # Q5 -------------------------------------------------------------------
-
 
 # Based on the models fitted in Q4 for Quebec and Mississippi plants,
 # describe how CO2 assimilation rate responded to ambient CO2
@@ -139,7 +130,6 @@ summary(mod_mississippi)
 #chilling had a more pronounced negative effect on both the level of CO2 assimilation and 
 #the rate at which uptake increased with rising CO2 concentration. Mississippi 
 # plants showed a more stable response, with less change in slope and baseline uptake across treatments. 
-
 
 # BCI data ----------------------------------------------------------------
 
@@ -210,17 +200,15 @@ head(df_env)
 
 ## DATA DESCRIPTION END ####################################################
 
-
 # Q6 ----------------------------------------------------------------------
-
 
 # Convert column names of `df_bci_env` to lowercase and reassign to `df_bci_env`
 
 df_env <- janitor::clean_names(df_env)
 
+df_env
 
 # Q7 ----------------------------------------------------------------------
-
 
 # In `df_env`, some environmental variables have no variation between plots
 # (i.e., the same value for all plots). Identify these columns and remove them
@@ -230,9 +218,9 @@ no_var_cols <- sapply(df_env, n_distinct)
 df_env_sub <- df_env %>% 
   select(all_of(names(no_var_cols)[which(no_var_cols > 1)]))
 
+summary(no_var_cols)
 
 # Q8 ----------------------------------------------------------------------
-
 
 # Calculate summary statistics for each plot using `df_bci`.
 # For each plot, compute:
@@ -246,10 +234,7 @@ df_n <- df_bci %>%
   summarize(n_sum = sum(count),
             n1 = max(count),
             p = n1 / n_sum)
-
-
 # Q9 ----------------------------------------------------------------------
-
 
 # Combine the species summary data (`df_n`) with the environmental variables
 # Combine the summary data (`df_n`) with the environmental variables
@@ -258,7 +243,7 @@ df_n <- df_bci %>%
 df_m <- df_n %>% 
   left_join(df_env_sub,
             by = "plot")
-
+head(df_m)
 # Q10
 # Develop a statistical model to explain variation in the proportion of the dominant
 # species in each plot. Use `EnvHet`, `Stream`, and `Habitat` as predictors.
@@ -269,9 +254,18 @@ df_m <- df_n %>%
 
 df_mod <- glm(cbind(n1, n_sum - n1) ~ env_het + stream + habitat, df_m,
          family = "binomial") 
+
+print(df_mod)
 # the best predictive model as a comment.
 
 library(MuMIn)
 options(na.action = "na.fail")
 (ms <- dredge(df_mod, rank = "AIC"))
-## the best predictive model can be Stream and Habitat 
+
+best_mod <- get.models(ms, 1)[[1]]
+summary(best_mod)
+
+## the best predictive model can be the one with the lowest AIC value, 517.3 and 
+##the highest model weight (0.716, meaning 71.6% probability of being the best model in the candidate set) Stream and Habitat 
+##habitat + env_het without stream effect. Habitat + stream is also on the second 
+
