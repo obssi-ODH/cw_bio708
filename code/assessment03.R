@@ -191,8 +191,8 @@ print(BCI.env)
 df_env <- BCI.env %>% 
   mutate(plot = paste0("p", str_pad(row_number(),
                                     width = 2, 
-                  
-                                                      pad = 0))) %>% 
+                                    
+                                    pad = 0))) %>% 
   relocate(plot)
 
 
@@ -253,7 +253,7 @@ head(df_m)
 # the best predictive model.
 
 df_mod <- glm(cbind(n1, n_sum - n1) ~ env_het + stream + habitat, df_m,
-         family = "binomial") 
+              family = "binomial") 
 
 print(df_mod)
 # the best predictive model as a comment.
